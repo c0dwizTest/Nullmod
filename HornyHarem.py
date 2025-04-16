@@ -1,27 +1,34 @@
-__version__ = (2,0,0)
-#░░░░░░░░░░░░░░░░░░░░░░
-#░░░░░░░░░░██░░██░░░░░░
-#░░░░░░░░░████████░░░░░
-#░░░░░░░░░████████░░░░░
-#░░░░░░░░░░██████░░░░░░
-#░░░░░░░░░░░░██░░░░░░░░
-#░░░░░░░░░░░░░░░░░░░░░░
-#░░░░░░░░░█▔█░░█░█░░░░░
-#░░░░░░░░░██░░░░█░░░░░░
-#░░░░░░░░░█▁█░░░█░░░░░░
-#░░░░░░░░░░░░░░░░░░░░░░
-#░░░███░███░███░███░███
-#░░░░░█░█░░░░█░░█░░░█░█
-#░░░░█░░███░░█░░█░█░█░█
-#░░░█░░░█░░░░█░░█░█░█░█
-#░░░███░███░░█░░███░███
+__version__ = (2, 0, 0)
+# ░░░░░░░░░░░░░░░░░░░░░░
+# ░░░░░░░░░░██░░██░░░░░░
+# ░░░░░░░░░████████░░░░░
+# ░░░░░░░░░████████░░░░░
+# ░░░░░░░░░░██████░░░░░░
+# ░░░░░░░░░░░░██░░░░░░░░
+# ░░░░░░░░░░░░░░░░░░░░░░
+# ░░░░░░░░░█▔█░░█░█░░░░░
+# ░░░░░░░░░██░░░░█░░░░░░
+# ░░░░░░░░░█▁█░░░█░░░░░░
+# ░░░░░░░░░░░░░░░░░░░░░░
+# ░░░███░███░███░███░███
+# ░░░░░█░█░░░░█░░█░░░█░█
+# ░░░░█░░███░░█░░█░█░█░█
+# ░░░█░░░█░░░░█░░█░█░█░█
+# ░░░███░███░░█░░███░███
 # H:Mods Team [💎]
 
 
 # meta developer: @nullmod
 
-from hikkatl.tl.functions.chatlists import CheckChatlistInviteRequest, JoinChatlistInviteRequest, LeaveChatlistRequest
-from hikkatl.tl.functions.messages import ImportChatInviteRequest, CheckChatInviteRequest
+from hikkatl.tl.functions.chatlists import (
+    CheckChatlistInviteRequest,
+    JoinChatlistInviteRequest,
+    LeaveChatlistRequest,
+)
+from hikkatl.tl.functions.messages import (
+    ImportChatInviteRequest,
+    CheckChatInviteRequest,
+)
 from hikkatl.tl.functions.channels import JoinChannelRequest, LeaveChannelRequest
 from hikkatl.tl.functions.contacts import BlockRequest, UnblockRequest
 from hikkatl.tl.types import Message, InputChatlistDialogFilter
@@ -34,9 +41,11 @@ import re
 
 logger = logging.getLogger(__name__)
 
+
 @loader.tds
 class HornyHarem(loader.Module):
     """Automatization module for @Horny_GaremBot"""
+
     def __init__(self):
         self.config = loader.ModuleConfig(
             loader.ConfigValue(
@@ -49,7 +58,7 @@ class HornyHarem(loader.Module):
                 "catch_output",
                 True,
                 "Выводить вайфу?(при ловле)",
-                validator=loader.validators.Boolean()
+                validator=loader.validators.Boolean(),
             ),
             loader.ConfigValue(
                 "catch",
@@ -59,73 +68,92 @@ class HornyHarem(loader.Module):
             ),
         )
 
-    strings = {
-        "name": "HornyHarem"
-    }
+    strings = {"name": "HornyHarem"}
+
     async def client_ready(self):
         self.id = 7896566560
-        
+
     def getmarkup(self):
         return [
-                [
-                    {
-                        "text": "[✔️] Автобонус" if self.config["ab"] else "[❌] Автобонус", 
-                        "callback": self.callback_handler,
-                        "args": ("ab",)
-                    }
-                ],
-                [
-                    {
-                        "text":"[✔️] Автоловля" if self.config["catch"] else "[❌] Автоловля",
-                        "callback":self.callback_handler,
-                        "args": ("catch",)
-                    },
-                    {
-                        "text":"[✔️] Вывод вайфу" if self.config["catch_output"] else "[❌] Вывод вайфу", 
-                        "callback":self.callback_handler,
-                        "args": ("catch_output",)
-                    }
-                ],
-                [
-                    {
-                        "text":"🔻 Закрыть меню", 
-                        "callback":self.callback_handler,
-                        "args": ("close",)
-                    }
-                ]
-            ]
+            [
+                {
+                    "text": "[✔️] Автобонус" if self.config["ab"] else "[❌] Автобонус",
+                    "callback": self.callback_handler,
+                    "args": ("ab",),
+                }
+            ],
+            [
+                {
+                    "text": "[✔️] Автоловля"
+                    if self.config["catch"]
+                    else "[❌] Автоловля",
+                    "callback": self.callback_handler,
+                    "args": ("catch",),
+                },
+                {
+                    "text": "[✔️] Вывод вайфу"
+                    if self.config["catch_output"]
+                    else "[❌] Вывод вайфу",
+                    "callback": self.callback_handler,
+                    "args": ("catch_output",),
+                },
+            ],
+            [
+                {
+                    "text": "🔻 Закрыть меню",
+                    "callback": self.callback_handler,
+                    "args": ("close",),
+                }
+            ],
+        ]
 
     ########loop########
     @loader.loop(interval=1, autostart=True)
     async def check_loop(self):
         if self.config["ab"]:
-            if (not self.get("ABonus_time") or (time.time() - self.get("ABonus_time")) >= 3600*4):
+            if (
+                not self.get("ABonus_time")
+                or (time.time() - self.get("ABonus_time")) >= 3600 * 4
+            ):
                 await self.autobonus()
-                
+
     ########loop########
 
     ########Ловец########
-    @loader.watcher("only_messages","only_media")
+    @loader.watcher("only_messages", "only_media")
     async def watcher(self, message: Message):
         """Watcher"""
-        if self.config["catch"] and message.sender_id == self.id and (not self.get("catcher_time") or int(time.time()) - int(self.get("catcher_time")) > 14400):
+        if (
+            self.config["catch"]
+            and message.sender_id == self.id
+            and (
+                not self.get("catcher_time")
+                or int(time.time()) - int(self.get("catcher_time")) > 14400
+            )
+        ):
             if "заблудилась" in message.text.lower():
                 try:
                     await message.click()
                     await asyncio.sleep(5)
                     msgs = await message.client.get_messages(message.chat_id, limit=10)
                     for msg in msgs:
-                        if msg.mentioned and "забрали" in msg.text and msg.sender_id == self.id:
+                        if (
+                            msg.mentioned
+                            and "забрали" in msg.text
+                            and msg.sender_id == self.id
+                        ):
                             if self.config["catch_output"]:
-                                match = re.search(r", Вы забрали (.+?)\. Вайфу", msg.text)
+                                match = re.search(
+                                    r", Вы забрали (.+?)\. Вайфу", msg.text
+                                )
                                 waifu = match.group(1)
                                 caption = f"{waifu} в вашем гареме! <emoji document_id=5395592707580127159>😎</emoji>"
-                                await self.client.send_file(self.id, caption=caption, file=message.media)
+                                await self.client.send_file(
+                                    self.id, caption=caption, file=message.media
+                                )
                             self.set("catcher_time", int(time.time()))
                 except Exception as e:
                     logger.error("Ошибка при ловле вайфу(не критично): {e}")
-                        
-
 
     ########Заработок########
     async def autobonus(self):
@@ -170,30 +198,54 @@ class HornyHarem(loader.Module):
                                 if button.url:
                                     alr = False
                                     if "addlist/" in button.url:
-                                        slug = self.button.split('addlist/')[-1]
-                                        peers = await self.client(CheckChatlistInviteRequest(slug=slug))
+                                        slug = self.button.split("addlist/")[-1]
+                                        peers = await self.client(
+                                            CheckChatlistInviteRequest(slug=slug)
+                                        )
                                         if peers:
                                             peers = peers.peers
                                             try:
-                                                a = await self.client(JoinChatlistInviteRequest(slug=slug, peers=peers))
+                                                a = await self.client(
+                                                    JoinChatlistInviteRequest(
+                                                        slug=slug, peers=peers
+                                                    )
+                                                )
                                                 chats_in_folders.append(peers)
 
                                                 for update in a.updates:
-                                                    if isinstance(update, hikkatl.tl.types.UpdateDialogFilter):   
-                                                        folder.append(InputChatlistDialogFilter(filter_id=update.id))
-                                        
+                                                    if isinstance(
+                                                        update,
+                                                        hikkatl.tl.types.UpdateDialogFilter,
+                                                    ):
+                                                        folder.append(
+                                                            InputChatlistDialogFilter(
+                                                                filter_id=update.id
+                                                            )
+                                                        )
+
                                             except:
                                                 pass
                                         continue
-                                    if not bool(re.match(r'^https?:\/\/t\.me\/[^\/]+\/?$',button.url)):
+                                    if not bool(
+                                        re.match(
+                                            r"^https?:\/\/t\.me\/[^\/]+\/?$", button.url
+                                        )
+                                    ):
                                         continue
                                     if "t.me/boost" in button.url:
                                         wait_boost = True
                                         continue
                                     if "t.me/+" in button.url:
                                         try:
-                                            a = await self.client(CheckChatInviteRequest(button.url.split("+")[-1]))
-                                            if not hasattr(a, "request_needed") or not a.request_needed:
+                                            a = await self.client(
+                                                CheckChatInviteRequest(
+                                                    button.url.split("+")[-1]
+                                                )
+                                            )
+                                            if (
+                                                not hasattr(a, "request_needed")
+                                                or not a.request_needed
+                                            ):
                                                 pass
                                             else:
                                                 continue
@@ -206,26 +258,40 @@ class HornyHarem(loader.Module):
                                         entity = await self.client.get_entity(url)
                                     except:
                                         try:
-                                            await self.client(ImportChatInviteRequest(button.url.split("+")[-1]))
+                                            await self.client(
+                                                ImportChatInviteRequest(
+                                                    button.url.split("+")[-1]
+                                                )
+                                            )
                                         except InviteRequestSentError:
                                             pass
-                                        entity = await self.client(CheckChatInviteRequest(button.url.split("+")[-1]))
+                                        entity = await self.client(
+                                            CheckChatInviteRequest(
+                                                button.url.split("+")[-1]
+                                            )
+                                        )
                                         alr = True
-                                    if hasattr(entity,'broadcast'):
+                                    if hasattr(entity, "broadcast"):
                                         if not alr:
-                                            await self.client(JoinChannelRequest(button.url))
+                                            await self.client(
+                                                JoinChannelRequest(button.url)
+                                            )
                                             to_leave.append(entity.id)
                                         else:
                                             to_leave.append(entity.chat.id)
-                                    elif hasattr(entity,'bot'):
+                                    elif hasattr(entity, "bot"):
                                         try:
-                                            await self.client(UnblockRequest(entity.username))
+                                            await self.client(
+                                                UnblockRequest(entity.username)
+                                            )
                                         except:
-                                            print('блин')
-                                        await self.client.send_message(entity,"/start")
+                                            print("блин")
+                                        await self.client.send_message(entity, "/start")
                                         to_block.append(entity.username)
-                        flyer_messages = await self.client.get_messages(self.id, limit=1)
-                        
+                        flyer_messages = await self.client.get_messages(
+                            self.id, limit=1
+                        )
+
                         if wait_boost:
                             await asyncio.sleep(120)
                         for m in flyer_messages:
@@ -233,7 +299,9 @@ class HornyHarem(loader.Module):
                             await m.click()
                             await asyncio.sleep(5)
                         for folder, chats in zip(folders, chats_in_folders):
-                            await client(LeaveChatlistRequest(peers=chats, chatlist=folder))
+                            await client(
+                                LeaveChatlistRequest(peers=chats, chatlist=folder)
+                            )
                         for bot in to_block:
                             await self.client(BlockRequest(bot))
                             await self.client.delete_dialog(bot)
@@ -243,7 +311,10 @@ class HornyHarem(loader.Module):
                             except:
                                 pass
                 count = 0
-                if not self.get("last_lout") or int(time.time()) - self.get("last_lout") > 43200:
+                if (
+                    not self.get("last_lout")
+                    or int(time.time()) - self.get("last_lout") > 43200
+                ):
                     while count <= 2:
                         await conv.send_message("/lout")
                         try:
@@ -257,19 +328,20 @@ class HornyHarem(loader.Module):
                                     pass
                         if r.reply_markup:
                             m = await r.respond(".")
-                            await self.lightsoutW(m,r)
+                            await self.lightsoutW(m, r)
                             await m.delete()
                             self.set("last_lout", int(time.time()))
                             count += 1
                         else:
                             break
+
     @loader.command()
-    async def HornyMenu(self,message):
+    async def HornyMenu(self, message):
         """Меню конфигурации"""
         self.call = await self.inline.form(
-            message = message, 
-            text = "Меню для @Horny_GaremBot", 
-            reply_markup = self.getmarkup()
+            message=message,
+            text="Меню для @Horny_GaremBot",
+            reply_markup=self.getmarkup(),
         )
 
     async def callback_handler(self, callback, data):
@@ -280,14 +352,12 @@ class HornyHarem(loader.Module):
             if data == "ab":
                 self.check_loop.start() if self.config[data] else self.check_loop.stop()
             await callback.edit(reply_markup=self.getmarkup())
-        
 
-    
     @loader.command()
     async def lightsoutW(self, message, r=None):
         """[ответ на соо с полем] Автоматически решает Lights Out"""
         if message.is_reply or r:
-            if not r: 
+            if not r:
                 r = await message.get_reply_message()
             if r.reply_markup:
                 a = r.buttons
@@ -302,47 +372,61 @@ class HornyHarem(loader.Module):
                         else:
                             None
             else:
-                await message.edit("<emoji document_id=5299030091735525430>❗️</emoji> Не вижу поля игры. Это точно то сообщение?")
+                await message.edit(
+                    "<emoji document_id=5299030091735525430>❗️</emoji> Не вижу поля игры. Это точно то сообщение?"
+                )
                 return
-             
+
         else:
-            await message.edit("<emoji document_id=5299030091735525430>❗️</emoji> Пропиши команду в ответ на игру.")
+            await message.edit(
+                "<emoji document_id=5299030091735525430>❗️</emoji> Пропиши команду в ответ на игру."
+            )
             return
         if pattern:
             await message.edit("<emoji document_id=5472146462362048818>💡</emoji>")
             clicks = await self.solution(pattern)
             if not clicks:
                 await message.edit("Иди код трейси гений.")
-                return #*смачный пинок кодеру под зад.*
+                return  # *смачный пинок кодеру под зад.*
             for i in range(len(clicks)):
                 if clicks[i] == 1:
-                    r = await self.client.get_messages(r.chat_id,ids=r.id)
+                    r = await self.client.get_messages(r.chat_id, ids=r.id)
                     await r.click(i)
-            await message.edit("<emoji document_id=5395592707580127159>😎</emoji> Готово.")
+            await message.edit(
+                "<emoji document_id=5395592707580127159>😎</emoji> Готово."
+            )
         else:
-            await message.edit("<emoji document_id=5299030091735525430>❗️</emoji> Ты ответил не на поле игры.")
+            await message.edit(
+                "<emoji document_id=5299030091735525430>❗️</emoji> Ты ответил не на поле игры."
+            )
             return
-    #///|
-    #///|
-    #///|
-    #///˅
+
+    # ///|
+    # ///|
+    # ///|
+    # ///˅
     async def solution(self, pole):
         n = len(pole)
         for num in range(2**n):
             binary_string = bin(num)[2:].zfill(n)
             presses = [int(char) for char in binary_string]
             temp = pole[:]
-        
+
             for i in range(n):
                 if presses[i]:
                     temp[i] ^= 1
-                    if i % 3 > 0: temp[i - 1] ^= 1
-                    if i % 3 < 2: temp[i + 1] ^= 1
-                    if i >= 3: temp[i - 3] ^= 1
-                    if i < 6: temp[i + 3] ^= 1
-        
+                    if i % 3 > 0:
+                        temp[i - 1] ^= 1
+                    if i % 3 < 2:
+                        temp[i + 1] ^= 1
+                    if i >= 3:
+                        temp[i - 3] ^= 1
+                    if i < 6:
+                        temp[i + 3] ^= 1
+
             if sum(temp) == 0:
                 return presses
 
         return None
+
     ########Заработок########

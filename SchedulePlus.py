@@ -1,43 +1,46 @@
-__version__ = (1,0,1)
-#░░░░░░░░░░░░░░░░░░░░░░
-#░░░░░░░░░░██░░██░░░░░░
-#░░░░░░░░░████████░░░░░
-#░░░░░░░░░████████░░░░░
-#░░░░░░░░░░██████░░░░░░
-#░░░░░░░░░░░░██░░░░░░░░
-#░░░░░░░░░░░░░░░░░░░░░░
-#░░░░░░░░░█▔█░░█░█░░░░░
-#░░░░░░░░░██░░░░█░░░░░░
-#░░░░░░░░░█▁█░░░█░░░░░░
-#░░░░░░░░░░░░░░░░░░░░░░
-#░░░███░███░███░███░███
-#░░░░░█░█░░░░█░░█░░░█░█
-#░░░░█░░███░░█░░█░█░█░█
-#░░░█░░░█░░░░█░░█░█░█░█
-#░░░███░███░░█░░███░███
+__version__ = (1, 0, 1)
+# ░░░░░░░░░░░░░░░░░░░░░░
+# ░░░░░░░░░░██░░██░░░░░░
+# ░░░░░░░░░████████░░░░░
+# ░░░░░░░░░████████░░░░░
+# ░░░░░░░░░░██████░░░░░░
+# ░░░░░░░░░░░░██░░░░░░░░
+# ░░░░░░░░░░░░░░░░░░░░░░
+# ░░░░░░░░░█▔█░░█░█░░░░░
+# ░░░░░░░░░██░░░░█░░░░░░
+# ░░░░░░░░░█▁█░░░█░░░░░░
+# ░░░░░░░░░░░░░░░░░░░░░░
+# ░░░███░███░███░███░███
+# ░░░░░█░█░░░░█░░█░░░█░█
+# ░░░░█░░███░░█░░█░█░█░█
+# ░░░█░░░█░░░░█░░█░█░█░█
+# ░░░███░███░░█░░███░███
 
 # Team: 'H:Mods'
 # meta developer: @nullmod
 
 
-from .. import loader, utils
 import re
 import asyncio
+
 from datetime import datetime, timedelta
+
+from .. import loader, utils
 
 
 @loader.tds
 class ScheduledMessagesPlusMod(loader.Module):
     """Планирование периодичных сообщений"""
+
     strings = {"name": "ScheduledMessagesPlus"}
 
     @loader.command()
     async def sch(self, message):
         """Используй .sch <периодичность в секундах> <количество отправок> <текст>
 
-Проф. режим: .sch 15 3 test{x=1;x*2}/{y=0;y+1}
-Запланирует три сообщения: test2/1, test4/2, test8/3"""
-        args = utils.get_args_raw(message).split(' ', 2)
+        Проф. режим: .sch 15 3 test{x=1;x*2}/{y=0;y+1}
+        Запланирует три сообщения: test2/1, test4/2, test8/3"""
+        args = utils.get_args_raw(message).split(" ", 2)
         if len(args) < 3 or not args[0].isdigit() or not args[1].isdigit():
             return await message.edit("Неверные аргументы")
 
@@ -46,7 +49,9 @@ class ScheduledMessagesPlusMod(loader.Module):
             return await message.edit("Максимальное число отложенных сообщений - 100.")
 
         chat_id = message.chat_id
-        forum_topic_id = message.reply_to.reply_to_msg_id if message.reply_to else None  # Forum(!!!!!!!!!!!)
+        forum_topic_id = (
+            message.reply_to.reply_to_msg_id if message.reply_to else None
+        )  # Forum(!!!!!!!!!!!)
         await message.edit("Сообщения будут запланированы")
 
         variables = {}
@@ -54,13 +59,16 @@ class ScheduledMessagesPlusMod(loader.Module):
         for i in range(count):
             send_time = datetime.utcnow() + timedelta(seconds=interval * i)
             formatted_text = self.process_text(text, variables)
-            await self.client.send_message(chat_id, formatted_text, schedule=send_time, reply_to=forum_topic_id)
+            await self.client.send_message(
+                chat_id, formatted_text, schedule=send_time, reply_to=forum_topic_id
+            )
 
     def process_text(self, text, variables):
         """Process text okay?"""
+
         def replace_match(match):
             return self.eval_expr(match.group(1), variables)
-        
+
         return re.sub(r"\{(.*?)\}", replace_match, text)
 
     def eval_expr(self, expr, variables):
